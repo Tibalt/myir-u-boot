@@ -135,6 +135,13 @@ static struct module_pin_mux status_led_pin_mux[] = {
 	{OFFSET(mcasp0_aclkr), (MODE(7) | PULLUDEN)},	/* GPIO3_18 */
 	{-1},
 };
+
+static struct module_pin_mux myd_wdt_pin_mux[] = {
+    {OFFSET(lcd_hsync), (MODE(7) | PULLUP_EN)},  // rst phy: GPIO2_23 AR8035_RST_n   R5 
+    {OFFSET(mcasp0_fsr),(MODE(7)|PULLUDDIS | RXACTIVE)}, // wdt disable: GPIO3_19
+    {-1},
+};
+
 void set_uart_mux_conf(void)
 {
 	configure_module_pin_mux(uart0_pin_mux);
@@ -154,4 +161,5 @@ void set_mux_conf_regs(void)
 	configure_module_pin_mux(emmc_pin_mux);
 #endif
 	configure_module_pin_mux(status_led_pin_mux);
+	configure_module_pin_mux(myd_wdt_pin_mux);
 }

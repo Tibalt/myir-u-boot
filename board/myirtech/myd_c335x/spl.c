@@ -10,6 +10,7 @@
 
 
 #include <common.h>
+#include <i2c.h>
 #include <errno.h>
 
 #include <asm/arch/ddr_defs.h>
@@ -63,7 +64,7 @@ const struct dpll_params dpll_ddr = {
 void am33xx_spl_board_init(void)
 {
 	struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
-
+    uchar   value = 0;
 	/* Get the frequency */
 	dpll_mpu_opp100.m = am335x_get_efuse_mpu_max_freq(cdev);
 
@@ -72,6 +73,10 @@ void am33xx_spl_board_init(void)
 
 	/* Set MPU Frequency to what we detected now that voltages are set */
 	do_setup_dpll(&dpll_mpu_regs, &dpll_mpu_opp100);
+
+    i2c_set_bus_num(0);
+    i2c_write(0x20, 0x03, 1, &value, 1);
+    i2c_write(0x21, 0x03, 1, &value, 1);
 }
 
 const struct dpll_params *get_dpll_ddr_params(void)
