@@ -202,15 +202,23 @@ static int handle_mac1_address(void)
 #define AR8051_DEBUG_RGMII_CLK_DLY_REG	0x5
 #define AR8051_RGMII_TX_CLK_DLY		0x100
 
-#define GPIO_PHY_RST        GPIO_TO_PIN(2,23)
+
+/* PHY reset GPIO */
+/* GPIO pin + bank to pin ID mapping */
+#define GPIO_PIN(_bank, _pin)		((_bank << 5) + _pin)
+#define GPIO_PHY_RST		GPIO_PIN(0, 19)
+#define GPIO_PHY_RST2		GPIO_PIN(3, 8)
 
 static void board_phy_init(void)
 {
-    gpio_request(GPIO_PHY_RST, "phy_rst");
-    gpio_direction_output(GPIO_PHY_RST, 0);
-    mdelay(2);
-    gpio_set_value(GPIO_PHY_RST, 1);
-    mdelay(2);
+	gpio_request(GPIO_PHY_RST, "phy_rst");
+	gpio_request(GPIO_PHY_RST2, "phy_rst2");
+	gpio_direction_output(GPIO_PHY_RST, 0);
+	gpio_direction_output(GPIO_PHY_RST2, 0);
+	mdelay(10);
+	gpio_set_value(GPIO_PHY_RST, 1);
+	gpio_set_value(GPIO_PHY_RST2, 1);
+	mdelay(10);
 }
 
 int board_eth_init(bd_t *bis)
@@ -229,7 +237,7 @@ int board_eth_init(bd_t *bis)
 
 	writel(RGMII_MODE_ENABLE | RGMII_INT_DELAY, &cdev->miisel);
 
-    board_phy_init();    
+	board_phy_init();
 
 	rv = cpsw_register(&cpsw_data);
 	if (rv < 0)

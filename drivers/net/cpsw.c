@@ -27,6 +27,8 @@
 #include <asm/arch/cpu.h>
 #include <dm.h>
 #include <fdt_support.h>
+#include <asm/arch/gpio.h>
+#include <asm/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -972,8 +974,10 @@ static int cpsw_phy_init(struct cpsw_priv *priv, struct cpsw_slave *slave)
 			priv->dev,
 			slave->data->phy_if);
 
-	if (!phydev)
+	if (!phydev){
+
 		return -1;
+	}
 
 	phydev->supported &= supported;
 	phydev->advertising = phydev->supported;
@@ -992,6 +996,7 @@ static int cpsw_phy_init(struct cpsw_priv *priv, struct cpsw_slave *slave)
 int _cpsw_register(struct cpsw_priv *priv)
 {
 	struct cpsw_slave	*slave;
+	int    phy_connected = 0;
 	struct cpsw_platform_data *data = &priv->data;
 	void			*regs = (void *)data->cpsw_base;
 
@@ -1016,8 +1021,28 @@ int _cpsw_register(struct cpsw_priv *priv)
 
 	cpsw_mdio_init(priv->dev->name, data->mdio_base, data->mdio_div);
 	priv->bus = miiphy_get_dev_by_name(priv->dev->name);
-	for_each_slave(slave, priv)
-		cpsw_phy_init(priv, slave);
+	for_each_slave(slave, priv){
+		int  _connected = cpsw_phy_init(priv, slave);
+		if( _connected == 1){
+			phy_connected += 1;
+		}
+	}
+
+	if(phy_connected == 0){ 	
+			printf("======\r\n");
+#ifdef CONFIG_TARGET_MYD_C335X
+			int wdi = 32*3+19;
+#else
+			int wdi = 32*3+8;
+#endif
+			gpio_request(wdi, "WDI");
+			gpio_direction_output(wdi, 0);
+			gpio_set_value(wdi,0);
+			mdelay(1800);
+			
+			printf("------\r\n");
+			reset_cpu(0);   // no one phy connected
+	}
 
 	return 0;
 }

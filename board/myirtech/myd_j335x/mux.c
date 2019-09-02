@@ -115,7 +115,7 @@ static struct module_pin_mux nand_pin_mux[] = {
 	{-1},
 };
 #endif
-
+#if !defined(CONFIG_NAND)
 static struct module_pin_mux emmc_pin_mux[] = {
 	{OFFSET(gpmc_csn1), (MODE(2) | PULLUDDIS | RXACTIVE)}, /* EMMC_CLK */
 	{OFFSET(gpmc_csn2), (MODE(2) | PULLUP_EN | RXACTIVE)}, /* EMMC_CMD */
@@ -129,7 +129,7 @@ static struct module_pin_mux emmc_pin_mux[] = {
 	{OFFSET(gpmc_ad7), (MODE(1) | PULLUP_EN | RXACTIVE)}, /* EMMC_DAT7 */
 	{-1},
 };
-
+#endif
 
 
 static struct module_pin_mux status_led_pin_mux[] = {
@@ -139,6 +139,7 @@ static struct module_pin_mux status_led_pin_mux[] = {
 
 static struct module_pin_mux myd_wdt_pin_mux[] = {
 	{OFFSET(emu1), (MODE(7) | PULLUDDIS | RXACTIVE)},	/* GPIO3_8 */
+	{OFFSET(emu0), (MODE(7) | PULLUP_EN)},	/* GPIO3_7 */
 	{OFFSET(mcasp0_axr0), (MODE(7) | PULLUDDIS | RXACTIVE)},	/* GPIO3_16 */
 	{-1},
 };
